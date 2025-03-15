@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.0/dist/css/uikit.min.css" />
+    <link type="image/x-icon" rel="shortcut icon" href="https://th.bing.com/th/id/OIP.-Wovyx9SdbTh-IfaBcs4SAHaHa?pid=ImgDet&w=159&h=159&c=7">
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.0/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.0/dist/js/uikit-icons.min.js"></script>
+    <style>
+        body {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 720px;
+            height: 100vh;
+            font-size: 18px;
+            color: white;
+            text-shadow: 1px 1px black, 1px -1px black, -1px 1px black, -1px -1px black, 3px 3px 6px rgba(0,0,0,.5);
+        }
+        .padding {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        h3 {
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://avatars.mds.yandex.net/i?id=630a5448542dcce30b8759135fdf58161c2b5ee1-7759147-images-thumbs&n=13');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size:cover;
+        }
+        .form {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+            z-index: 1;
+        }
+        .check-list {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            display: none;
+            padding: 10px;
+            max-height: calc(100vh - 100px);
+            overflow-y: scroll;
+            background-color: rgba(176, 177, 177, 0.7);
+            border-radius: 10px;
+            z-index: 2;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+        .change {
+            width: 18px;
+            height: 18px;  
+        }
+        .change-icon {
+            background-image: url('https://avatars.mds.yandex.net/i?id=1bc0d344ff9d21f5fca8a6da51813a7acbfc478e-9385956-images-thumbs&n=13');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            border-radius: 50%;
+        }
+        .teams-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+					}
+					.team-container {
+						display: flex;
+            flex-direction: column;
+        }
+        .checkbox {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        .open {
+            cursor: pointer;
+        }
+        .text {
+            color:white
+        }
+        .modal-container {
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            right: 50px;
+            display: none;
+            background-color: rgba(2, 2, 2, 0.7);
+            border-radius: 15px;
+            z-index: 5;
+        }
+        .modal-content {
+            padding: 15px;
+        }
+        .modal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input {
+            margin-bottom: 10px;
+            padding: 3px;
+            width: 170px;
+            border-radius: 5px;
+        }
+        .select {
+            width: 178px;
+        }
+        .btn-container {
+            padding-top: 15px;
+        }
+        .isActive {
+            display: block;
+        }
+
+        @media (max-width: 400px) {
+            .modal-container {
+                left: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+    <title>Футбол</title>
+</head>
+<body>
+	<div id="container" class="container">
+		<div class="header-container">
+			<h3 class="text open" for="players" id="list">Список игроков</h3>
+			<h3 class="text" id="count">0</h3>
+		</div>
+		<form class="form" name="fullPlayers" id="form">
+			<div class="check-list" id="fullPlayers"></div>
+			<button class="uk-button uk-button-primary center" id="divide">Разделить по командам</button>
+		</form>
+		<div class="teams-container">
+			<div class="team1 team-container">
+				<h3 class="text" >Команда 1</h3>
+				<ul class="team-list" id="team1"></ul>
+			</div>
+			<div class="team2 team-container">
+				<h3 class="text" >Команда 2</h3>
+				<ul class="team-list" id="team2"></ul>
+			</div>
+		</div>
+		<div class="modal-container" id="modal"></div>
+	</div>
+</body>
+<script>
+    let players = [
+        {id: 1, name: "Асхат", skill: 4, active: false},
+        {id: 2, name: "Дима", skill: 4, active: false},
+        {id: 3, name: "Игрок 1", skill: 2, active: false},
+        {id: 4, name: "Игрок 2", skill: 2, active: false},
+        {id: 5, name: "Игрок 3", skill: 3, active: false},
+        {id: 6, name: "Игрок 4", skill: 3, active: false},
+        {id: 7, name: "Игрок 5", skill: 2, active: false},
+    ]
+
+    const storageName = 'football';
+    const local = getFromStorage();
+    local ? players = local : players = players;
+
+    const form = document.getElementById('form');
+    const playerContainer = document.getElementById('fullPlayers');
+
+    document.getElementById('list').addEventListener('click', () => {
+        playerContainer.classList.toggle('isActive');
+    })
+    let addListener;
+
+    renderPlayerList(players, playerContainer);
+    divideTeams(form, players);
+
+    function createModal(dataModal) {
+        return `<p>${dataModal.p}</p>
+            <form class="modal">
+                <div class="input-container">
+                    <label for="name" id="formName">Имя</label>
+                    <input class="input" type="text" id="name" name="name">
+                </div>
+                <div class="input-container">
+                    <label for="skill" id="formSkill">Мастерство</label>
+                <select class="input select" name="skill" id="skill">
+                    <option class="option" value="1">Никакой</option>
+                    <option class="option" value="2">Новичёк</option>
+                    <option class="option" value="3" ${(dataModal.change ? '' : 'selected')}>Норм</option>
+                    <option class="option" value="4">Хорош</option>
+                    <option class="option" value="5">Профи</option>
+                </select>
+                </div>
+                <div class="btn-container">
+                    <button class='uk-button uk-button-small uk-button-primary' id="save">Сохранить</button>
+                    <button class='uk-button uk-button-small uk-button-danger' id="${(dataModal.change ? 'del' : 'cancel')}">${(dataModal.change ? 'Удалить' : 'Отменить')}</button>
+                </div>
+            </form>`
+    }
+
+    function modalChange() {
+        const modal = document.getElementById('modal');
+        document.querySelectorAll('.change').forEach(el => {
+            el.addEventListener('click', () => {
+                modal.classList.add('isActive');
+
+                const dataModal = {
+                    p: 'Изменить данные',
+                    change: true
+                }
+                const modalContent = createModalContent(dataModal)
+                modal.append(modalContent);
+            
+                const modalForm = modal.querySelector('form');
+                const id = el.getAttribute('data-id');
+                const index = players.findIndex(p => p.id == id);
+                const changePlayer = players[index];
+
+                modalForm.name.value = changePlayer.name;
+                modalForm.skill.value = changePlayer.skill;
+
+                modalForm.save.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    modalContent.remove();
+                    players[index].name = modalForm.name.value;
+                    players[index].skill = modalForm.skill.value;
+                    modalForm.name.value = players[index].name;
+                    modalForm.skill.value = players[index].skill;
+                    saveAfterModal(modal);
+
+                })
+
+                modalForm.del.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    modalContent.remove();
+                    if (confirm('Удалить игрока?')) {
+                        players.splice(index, 1);
+                        saveAfterModal(modal);
+                        return
+                    }
+                    saveAfterModal(modal);
+                })
+            })
+        })
+    }
+
+    function modalAdd() {
+        const modal = document.getElementById('modal');
+        document.getElementById('addPlayer').addEventListener('click', () => {
+        modal.classList.add('isActive');
+
+        const dataModal = {
+            p: 'Добавить игрока',
+            change: false
+        }
+
+        const modalContent = createModalContent(dataModal);
+        modal.append(modalContent);
+
+        const modalForm = modal.querySelector('form');
+        modalForm.save.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (validateName(modalForm.name.value)) {
+                players.push({
+                    id: players.length ? Math.max(...players.map(n => n.id)) + 1 : 1,
+                    name: modalForm.name.value,
+                    skill: modalForm.skill.value,
+                    active: false
+                })
+                modalContent.remove();
+                saveAfterModal(modal);
+            }
+        });
+
+            modalForm.cancel.addEventListener('click', (e) => {
+                e.preventDefault();
+                modalContent.remove();
+                saveAfterModal(modal);
+            })
+        });
+    }
+
+    function validateName(name) {
+        if (name.length < 2) {
+            alert('Длинна имени должна быть больше 1 символов');
+            return false;
+        }
+        return name;
+    }
+
+    function saveAfterModal(modal) {
+        modal.classList.remove('isActive');
+        saveToLocal(players);
+        renderPlayerList(players, playerContainer);
+    }
+
+    function renderPlayerList(players, playerContainer) {
+        let formTemplate = '';
+        let playersChecked = 0;
+        players.forEach(n => {
+            const checked = n.active ? "checked" : '';
+            formTemplate += `<div class="input-container">
+                <div class="checkbox-container">
+                    <input type="checkbox" ${checked} class="checkbox" name="player" id="${n.id}">
+                    <label class="text" for="${n.id}">${n.name}</label>
+                </div>
+                <div class="change change-icon" data-id="${n.id}"></div>
+            </div>`
+            n.active ? playersChecked++ : 0;
+        });
+        countActivePlayers(playersChecked);
+
+        formTemplate += '<button id="addPlayer">Добавить игрока</button>'
+        playerContainer.innerHTML = formTemplate;
+
+        playerContainer.querySelectorAll('input').forEach(el => {
+            el.addEventListener('change', () => {
+                getActivePlayers(form, players);
+            })
+        })
+
+        
+        modalChange();
+        modalAdd()
+        document.getElementById('addPlayer').addEventListener('click', (e) => {
+            e.preventDefault();
+        })
+    }
+
+    function countActivePlayers(playersChecked) {
+        document.getElementById('count').textContent = playersChecked;
+    }
+
+    function saveToLocal(arr) {
+        localStorage.setItem(storageName, JSON.stringify(players));
+    }
+
+    function getFromStorage() {
+        return JSON.parse(localStorage.getItem(storageName));
+    }
+
+    function divideTeams(form, players) {
+        const divide = document.getElementById('divide');
+
+        divide.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        let playersChecked = getActivePlayers(form, players);
+        
+        if (playersChecked.length <= 1) {
+                alert('Не достаточно игроков, чтоб поделить на 2 команды');
+                return;
+        }
+
+        playersChecked = playersChecked.sort(() => Math.random() - 0.5).sort((a, b) => b.skill - a.skill);
+
+        let even = playersChecked.length > 0 && playersChecked.length % 2 == 0 ? true : false;
+        let length = 0;
+
+        if (even) {
+                length = playersChecked.length;
+        } else {
+                length = playersChecked.length - 1;
+        }
+
+        team1 = [];
+        team2 = [];
+        let innerTeam1 = '';
+        let innerTeam2 = '';
+        
+        for (i = 0; i < length; i++) {
+                if (i % 2 == 0) {
+                    team1.push(playersChecked[i]);
+                } else {
+                    team2.push(playersChecked[i]);
+                }
+        }
+
+        if (!even) {
+            const skill1 = team1.reduce((sum, i) => sum + i.skill, 0);
+            const skill2 = team2.reduce((sum, i) => sum + i.skill, 0);
+        
+            if (skill1 <= skill2) {
+                team1.push(playersChecked[length])
+            } else {
+                team2.push(playersChecked[length])
+            }
+        }
+
+        team1.forEach(p => {
+            innerTeam1 += `<li>${p.name}</li>`
+        })
+        team2.forEach(p => {
+            innerTeam2 += `<li>${p.name}</li>`
+        })
+        
+        document.getElementById('team1').innerHTML = innerTeam1;
+        document.getElementById('team2').innerHTML = innerTeam2;
+        saveToLocal(players);
+        })
+    }
+
+    function getActivePlayers(form, players) {
+        (form.player.id ? [form.player] : form.player).forEach(n => {
+            if (n.checked) {
+                players[players.findIndex(p => p.id == n.id)].active = true;
+            } else {
+                players[players.findIndex(p => p.id == n.id)].active = false;
+            }
+        })
+        let playersChecked = players.filter(p => p.active === true);
+        countActivePlayers(playersChecked.length);  
+        saveToLocal(players) 
+        return playersChecked; 
+    }
+
+    function createModalContent(dataModal) {
+        const modalContent = document.createElement('div');
+        modalContent.setAttribute('id', 'modalContent');
+        modalContent.setAttribute('class', 'modal-content');
+
+        modalContent.innerHTML = createModal(dataModal);
+
+        const clickOutside = (e) => {
+            if (!modalContent.contains(e.target)) {
+                modalContent.remove();
+                window.removeEventListener('mousedown', clickOutside)
+            }
+        }
+        window.addEventListener('mousedown', clickOutside)
+
+        return modalContent;
+    }
+</script>
+</html>
